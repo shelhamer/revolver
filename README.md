@@ -1,5 +1,10 @@
 # Few-shot Segmentation Propagation with Guided Networks
 
+on arxiv: https://arxiv.org/abs/1806.07373
+
+by Kate Rakelly\*, Evan Shelhamer\*, Trevor Darrell, Alexei A. Efros, and Sergey Levine
+UC Berkeley
+
 > Learning-based methods for visual segmentation have made progress on particular
 types of segmentation tasks, but are limited by the necessary supervision, the
 narrow definitions of fixed tasks, and the lack of control during inference for
