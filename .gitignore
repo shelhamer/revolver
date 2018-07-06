@@ -1,0 +1,20 @@
+## General
+
+*.pyc
+*.ipynb_checkpoints
+__pycache__
+
+*.npy
+*.pkl
+
+.envrc
+
+## Project
+
+*.pth
+*live.ipynb
+
+/data
+/data/**
+/experiments
+/experiments/**
