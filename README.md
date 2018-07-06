@@ -21,4 +21,15 @@ for interactive segmentation, across time for video segmentation, and across
 scenes for semantic segmentation. Our guided segmentor is state-of-the-art in
 accuracy for the amount of annotation and time.
 
-Please check back soon for code, models, and usage notebooks!
+This is a **work-in-progress**, and not yet a reference implementation of the paper, and could change at any time.
+
+- for few-shot interactive image segmentation and few-shot semantic segmentation, see branch `image-seg`
+- for few-shot video object segmentation, see branch `video-seg`
+
+TODO
+
+- [ ] port to pytorch 0.4 from 0.3.1
+- [ ] push branch for interactive video segmentation
+- [ ] reconcile branches into unified implementation of few-shot segmentation
+
+Please check back soon for improvements, pre-trained models, and usage notebooks!
