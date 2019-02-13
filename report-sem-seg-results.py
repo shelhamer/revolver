@@ -1,7 +1,7 @@
 import numpy as np
 import click
 
-from transducer.metrics import SegScorer
+from revolver.metrics import SegScorer
 
 # trained nets are evaluated on all the validation data
 # for semantic segmentation, we compute the mean positive IU for each split on the heldout classes
