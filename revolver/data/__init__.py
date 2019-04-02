@@ -332,7 +332,7 @@ datasets = {
     'voc': VOCSemSeg,
     'sbdd': SBDDSemSeg,
     'voc-inst': VOCInstSeg,
-    'sbdd-inst': SBDDInstSeg
+    'sbdd-inst': SBDDInstSeg,
     'coco': COCO,
 }
 
