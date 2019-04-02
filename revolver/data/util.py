@@ -14,11 +14,11 @@ class InputsTargetAuxCollate(object):
             inputs = list(inputs)
             for i, input_ in enumerate(inputs):
                 if not isinstance(input_, list):
-                    inputs[i] = default_collate(input_).unsqueeze(0)
+                    inputs[i] = default_collate([input_])
                 else:
-                    inputs[i] = [[default_collate(in_).unsqueeze(0)
+                    inputs[i] = [[default_collate([in_])
                                   for in_ in inp] for inp in input_]
-            target = default_collate(target)
+            target = default_collate([target])
             return (*inputs, target, aux)
         raise TypeError("Data should contain (inputs, target, aux) tuples; "
                         "found: {}".format(type(batch)))

@@ -4,14 +4,13 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
 
 from .backbone import vgg16
 from .fcn import Interpolator, Downsampler
-from .dios_late import dios_late
+from .interactive_late import interactive_late
 
 
-class cofeat_late(dios_late):
+class cofeat_late(interactive_late):
 
 
     def __init__(self, num_classes, feat_dim=None):
@@ -29,8 +28,8 @@ class cofeat_late(dios_late):
 
 
     def guide(self, supp, update=False):
-        z = Variable(self.z, requires_grad=False)  # for backprop through z
-        num_z = Variable(self.num_z, requires_grad=False)
+        z = self.z
+        num_z = self.num_z
         if not update:
             # non-cumulative use resets accumulated guidance
             self.clear_guide()
