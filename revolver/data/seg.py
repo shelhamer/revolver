@@ -60,7 +60,7 @@ class SegData(Dataset):
         im = self.load_image(self.slug_to_image_path(slug))
         target = self.load_annotation(self.slug_to_annotation_path(slug))
         # third return is reserved for auxiliary info dict
-        return im, target, {}
+        return im, target, {'slug': slug}
 
     def __len__(self):
         return len(self.slugs)

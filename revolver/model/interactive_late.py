@@ -4,13 +4,12 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
 
 from .backbone import vgg16
 from .fcn import Interpolator, Downsampler
 
 
-class dios_late(nn.Module):
+class interactive_late(nn.Module):
 
     def __init__(self, num_classes, feat_dim=None):
         super().__init__()
@@ -22,8 +21,7 @@ class dios_late(nn.Module):
 
         # fully conv encoder
         self.encoder = vgg16(is_caffe=True)
-        for k in list(self.encoder._modules)[-3:]:
-            del self.encoder._modules[k]
+        del self.encoder[-3:]
 
         # classification head (including fc7 for compatibility with guidance)
         head = [('fc7', nn.Conv2d(self.feat_dim*2, self.feat_dim*2, 1)),
@@ -33,10 +31,10 @@ class dios_late(nn.Module):
         self.head = nn.Sequential(OrderedDict(head))
 
         # normal init fc7
-        self.head.fc7.weight.data.normal_(0, .001)
+        nn.init.normal_(self.head.fc7.weight, 0., .001)
         # zero init score
-        self.head.score.weight.data.zero_()
-        self.head.score.bias.data.zero_()
+        nn.init.constant_(self.head.score.weight, 0.)
+        nn.init.constant_(self.head.score.bias, 0.)
 
         # bilinear interpolation for upsampling
         self.decoder = Interpolator(1, 32, odd=False)

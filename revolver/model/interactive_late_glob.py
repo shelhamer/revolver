@@ -4,14 +4,13 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
 
 from .backbone import vgg16
 from .fcn import Interpolator, Downsampler
-from .dios_late import dios_late
+from .interactive_late import interactive_late
 
 
-class dios_late_glob(dios_late):
+class interactive_late_glob(interactive_late):
 
     def forward(self, im, anno):
         h, w = im.size()[-2:]

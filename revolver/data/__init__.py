@@ -9,7 +9,7 @@ from .coco import COCO
 from .seg import MaskInstSeg, MaskSemSeg
 from .sparse import SparseSeg
 from .interactive import InteractiveSeg
-from .filter import TargetFilter, TargetMapper, SubSampler, MultiFilter
+from .filter import TargetFilter, TargetMapper, SubSampler
 from .conditional import ConditionalInstSeg, ConditionalSemSeg
 from .crop import CropSeg
 from .class_balance import ClassBalance
@@ -17,18 +17,16 @@ from .transforms import *
 from .util import InputsTargetAuxCollate
 
 
-def prepare_semantic_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
+def prepare_semantic_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
     if classes_to_filter is not None:
         raise Exception("Cannot load semantic data with class groups.")
     if count is not None:
         raise Exception("Cannot load semantic data with sparsity.")
-    cache_path = make_cache_path('semantic', dataset_name, split, classes_to_filter=None, count=-1, multi=multi)
+    cache_path = make_cache_path('semantic', dataset_name, split, classes_to_filter=None, count=-1)
     if os.path.isfile(cache_path):
         return pickle.load(open(cache_path, 'rb'))
     dataset = datasets[dataset_name]
     ds = dataset(split=split)
-    if multi:
-        ds = MultiFilter(ds)
     image_transform = Compose([
         ImToCaffe(mean=dataset.mean),
         NpToTensor()
@@ -39,16 +37,14 @@ def prepare_semantic_data(dataset_name, split, classes_to_filter=None, count=Non
     pickle.dump(transform_ds, open(cache_path, 'wb'))
     return transform_ds
 
-def prepare_fgbg_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
+def prepare_fgbg_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
     if count is not None:
         raise Exception("Cannot load fg-bg data with sparsity.")
-    cache_path = make_cache_path('fgbg', dataset_name, split, classes_to_filter, count=-1, multi=multi)
+    cache_path = make_cache_path('fgbg', dataset_name, split, classes_to_filter, count=-1)
     if os.path.isfile(cache_path):
         return pickle.load(open(cache_path, 'rb'))
     dataset = datasets[dataset_name]
     ds = dataset(split=split)
-    if multi:
-        ds = MultiFilter(ds)
     filter_ds = filter_classes(ds, classes_to_filter)
     class_bal_ds = balance_classes(filter_ds, classes_to_filter)
     # map all included classes (except background) to positive (== 1)
@@ -66,10 +62,8 @@ def prepare_fgbg_data(dataset_name, split, classes_to_filter=None, count=None, s
     pickle.dump(transform_ds, open(cache_path, 'wb'))
     return transform_ds
 
-def prepare_interactive_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
-    if multi:
-        raise Exception("Cannot multi interactive instance.")
-    cache_path = make_cache_path('interactive', dataset_name, split, classes_to_filter, count, multi)
+def prepare_interactive_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
+    cache_path = make_cache_path('interactive', dataset_name, split, classes_to_filter, count)
     if os.path.isfile(cache_path):
         return pickle.load(open(cache_path, 'rb'))
     sem_dataset = datasets[dataset_name]
@@ -92,14 +86,12 @@ def prepare_interactive_data(dataset_name, split, classes_to_filter=None, count=
     pickle.dump(transform_ds, open(cache_path, 'wb'))
     return transform_ds
 
-def prepare_interactive_class_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
-    cache_path = make_cache_path('interactive-class', dataset_name, split, classes_to_filter, count, multi)
+def prepare_interactive_class_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
+    cache_path = make_cache_path('interactive-class', dataset_name, split, classes_to_filter, count)
     if os.path.isfile(cache_path):
         return pickle.load(open(cache_path, 'rb'))
     sem_dataset = datasets[dataset_name]
     sem_ds = sem_dataset(split=split)
-    if multi:
-        sem_ds = MultiFilter(sem_ds)
     mask_ds = MaskSemSeg(sem_ds)
     filter_mask_ds = filter_classes(mask_ds, classes_to_filter)
     class_bal_ds = balance_classes(filter_mask_ds, classes_to_filter)
@@ -116,10 +108,8 @@ def prepare_interactive_class_data(dataset_name, split, classes_to_filter=None, 
     pickle.dump(transform_ds, open(cache_path, 'wb'))
     return transform_ds
 
-def prepare_early_interactive_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
-    if multi:
-        raise Exception("Cannot multi interactive instance.")
-    cache_path = make_cache_path('early-interactive', dataset_name, split, classes_to_filter, count, multi)
+def prepare_early_interactive_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
+    cache_path = make_cache_path('early-interactive', dataset_name, split, classes_to_filter, count)
     if os.path.isfile(cache_path):
         return pickle.load(open(cache_path, 'rb'))
     sem_dataset = datasets[dataset_name]
@@ -143,14 +133,12 @@ def prepare_early_interactive_data(dataset_name, split, classes_to_filter=None, 
     pickle.dump(transform_ds, open(cache_path, 'wb'))
     return transform_ds
 
-def prepare_early_interactive_class_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
-    cache_path = make_cache_path('early-interactive-class', dataset_name, split, classes_to_filter, count, multi)
+def prepare_early_interactive_class_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
+    cache_path = make_cache_path('early-interactive-class', dataset_name, split, classes_to_filter, count)
     if os.path.isfile(cache_path):
         return pickle.load(open(cache_path, 'rb'))
     sem_dataset = datasets[dataset_name]
     sem_ds = sem_dataset(split=split)
-    if multi:
-        sem_ds = MultiFilter(sem_ds)
     mask_ds = MaskSemSeg(sem_ds)
     filter_mask_ds = filter_classes(mask_ds, classes_to_filter)
     class_bal_ds = balance_classes(filter_mask_ds, classes_to_filter)
@@ -168,10 +156,8 @@ def prepare_early_interactive_class_data(dataset_name, split, classes_to_filter=
     pickle.dump(transform_ds, open(cache_path, 'wb'))
     return transform_ds
 
-def prepare_early_conditional_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
-    if multi:
-        raise Exception("Cannot multi early conditional instance data.")
-    cache_path = make_cache_path('early-conditional', dataset_name, split, classes_to_filter, count, multi)
+def prepare_early_conditional_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
+    cache_path = make_cache_path('early-conditional', dataset_name, split, classes_to_filter, count)
     if os.path.isfile(cache_path):
         ds = pickle.load(open(cache_path, 'rb'))
         ds.ds.shot = shot  # don't worry about it...
@@ -198,16 +184,14 @@ def prepare_early_conditional_data(dataset_name, split, classes_to_filter=None, 
     pickle.dump(transform_ds, open(cache_path, 'wb'))
     return transform_ds
 
-def prepare_early_conditional_class_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
-    cache_path = make_cache_path('early-conditional-class', dataset_name, split, classes_to_filter, count, multi)
+def prepare_early_conditional_class_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
+    cache_path = make_cache_path('early-conditional-class', dataset_name, split, classes_to_filter, count)
     if os.path.isfile(cache_path):
         ds = pickle.load(open(cache_path, 'rb'))
         ds.ds.shot = shot  # don't worry about it...
         return ds
     sem_dataset = datasets[dataset_name]
     sem_ds = sem_dataset(split=split)
-    if multi:
-        sem_ds = MultiFilter(sem_ds)
     mask_ds = MaskSemSeg(sem_ds)
     filter_mask_ds = filter_classes(mask_ds, classes_to_filter)
     if classes_to_filter is None:
@@ -230,10 +214,8 @@ def prepare_early_conditional_class_data(dataset_name, split, classes_to_filter=
     pickle.dump(transform_ds, open(cache_path, 'wb'))
     return transform_ds
 
-def prepare_late_conditional_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
-    if multi:
-        raise Exception("Cannot multi late conditional instance data.")
-    cache_path = make_cache_path('late-conditional', dataset_name, split, classes_to_filter, count, multi)
+def prepare_late_conditional_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
+    cache_path = make_cache_path('late-conditional', dataset_name, split, classes_to_filter, count)
     if os.path.isfile(cache_path):
         ds = pickle.load(open(cache_path, 'rb'))
         ds.ds.shot = shot  # don't worry about it...
@@ -259,16 +241,14 @@ def prepare_late_conditional_data(dataset_name, split, classes_to_filter=None, c
     pickle.dump(transform_ds, open(cache_path, 'wb'))
     return transform_ds
 
-def prepare_late_conditional_class_data(dataset_name, split, classes_to_filter=None, count=None, shot=None, multi=False):
-    cache_path = make_cache_path('late-conditional-class', dataset_name, split, classes_to_filter, count, multi)
+def prepare_late_conditional_class_data(dataset_name, split, classes_to_filter=None, count=None, shot=None):
+    cache_path = make_cache_path('late-conditional-class', dataset_name, split, classes_to_filter, count)
     if os.path.isfile(cache_path):
         ds = pickle.load(open(cache_path, 'rb'))
         ds.ds.shot = shot  # don't worry about it...
         return ds
     sem_dataset = datasets[dataset_name]
     sem_ds = sem_dataset(split=split)
-    if multi:
-        sem_ds = MultiFilter(sem_ds)
     mask_ds = MaskSemSeg(sem_ds)
     filter_mask_ds = filter_classes(mask_ds, classes_to_filter)
     if classes_to_filter is None:
@@ -300,12 +280,11 @@ def prepare_loader(dataset, evaluation=False):
         collate_fn=InputsTargetAuxCollate(),
         num_workers=num_workers, pin_memory=True)
 
-def make_cache_path(datatype, dataset_name, split, classes_to_filter=None, count=None, multi=False):
+def make_cache_path(datatype, dataset_name, split, classes_to_filter=None, count=None):
     classes_to_filter = '-'.join(str(c) for c in classes_to_filter) if classes_to_filter else 'all'
     count = 'dense' if count == -1 else "{}sparse".format(count) if count else 'randsparse'
-    multi = 'multi' if multi else ''
-    return "{__CACHE_DIR__}/{datatype}_{dataset_name}_{split}_{classes_to_filter}_{count}_{multi}.pkl".format(
-            __CACHE_DIR__=__CACHE_DIR__, datatype=datatype, dataset_name=dataset_name, split=split, classes_to_filter=classes_to_filter, count=count, multi=multi)
+    return "{__CACHE_DIR__}/{datatype}_{dataset_name}_{split}_{classes_to_filter}_{count}.pkl".format(
+            __CACHE_DIR__=__CACHE_DIR__, datatype=datatype, dataset_name=dataset_name, split=split, classes_to_filter=classes_to_filter, count=count)
 
 def filter_classes(ds, classes_to_keep=None):
     if classes_to_keep:
@@ -332,7 +311,7 @@ datasets = {
     'voc': VOCSemSeg,
     'sbdd': SBDDSemSeg,
     'voc-inst': VOCInstSeg,
-    'sbdd-inst': SBDDInstSeg
+    'sbdd-inst': SBDDInstSeg,
     'coco': COCO,
 }
 

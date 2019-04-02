@@ -12,11 +12,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.multiprocessing as multiprocessing
-from torch.autograd import Variable
 
 from revolver.data import datasets, datatypes, prepare_loader
 from revolver.model import models, prepare_model
-from revolver.model.loss import CrossEntropyLoss2D
 from revolver.metrics import SegScorer
 
 from evaluate import evaluate
@@ -67,6 +65,7 @@ def main(experiment, model, dataset, datatype, split, val_dataset, val_split, cl
         raise Exception("Could not create experiment dir {}".format(exp_dir))
 
     os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
+    device = torch.device('cuda:0')
 
     logging.basicConfig(filename=exp_dir + 'log', level=logging.INFO,
         format='[%(asctime)s.%(msecs)03d] %(message)s', datefmt='%H:%M:%S')
@@ -104,7 +103,7 @@ def main(experiment, model, dataset, datatype, split, val_dataset, val_split, cl
     model_name = model
     model = prepare_model(model, dataset.num_classes).cuda()
 
-    loss_fn = CrossEntropyLoss2D(size_average=True, ignore_index=dataset.ignore_index)
+    loss_fn = nn.CrossEntropyLoss(reduction='mean', ignore_index=dataset.ignore_index)
     learned_params = filter(lambda p: p.requires_grad, model.parameters())
     opt = optim.SGD(learned_params, lr=lr, momentum=0.99, weight_decay=0.0005)
 
@@ -120,16 +119,16 @@ def main(experiment, model, dataset, datatype, split, val_dataset, val_split, cl
         train_loss = 0.
         for i, data in enumerate(loader):
             inputs, target, aux = data[:-2], data[-2], data[-1]
-            inputs = [Variable(inp).cuda() if not isinstance(inp, list) else
-                    [[Variable(i_).cuda() for i_ in in_] for in_ in inp] for inp in inputs]
-            target = Variable(target).cuda(async=True)
+            inputs = [inp.to(device) if not isinstance(inp, list) else
+                    [[i_.to(device) for i_ in in_] for in_ in inp] for inp in inputs]
+            target = target.to(device, non_blocking=True)
 
             scores = model(*inputs)
             loss = loss_fn(scores, target)
             loss.backward()
 
-            train_loss += loss.data[0]
-            losses.append(loss.data[0])
+            train_loss += loss.item()
+            losses.append(loss.item())
             if iteration % 20 == 0:
                 logging.info("%s", "iter {iteration:{iter_order}d} loss {mean_loss:02.5f}".format(iteration=iteration, iter_order=iter_order, mean_loss=np.mean(losses)))
                 losses = []
@@ -149,7 +148,7 @@ def main(experiment, model, dataset, datatype, split, val_dataset, val_split, cl
                     except:
                         pass
                     # carry out evaluation in independent process for determinism and speed
-                    q.put((model_name, snapshot_path, val_dataset_name, datatype, val_split, count, shot, False, seed, gpu, hist_path))
+                    q.put((model_name, snapshot_path, val_dataset_name, datatype, val_split, count, shot, seed, gpu, hist_path, None))
 
             # update
             opt.step()

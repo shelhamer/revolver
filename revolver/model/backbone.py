@@ -41,7 +41,7 @@ def vgg16(is_caffe=True):
         for new_p, old_p in zip(vgg16.parameters(), caffe_params.values()):
                 new_p.data.copy_(old_p.view_as(new_p))
     # surgery: decapitate final classifier
-    del vgg16._modules['fc8']  # note: risky use of private interface
+    del vgg16.fc8
     # surgery: keep fuller spatial dims by including incomplete pooling regions
     for m in vgg16.modules():
         if isinstance(m, nn.MaxPool2d):

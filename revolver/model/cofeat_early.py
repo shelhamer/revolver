@@ -18,12 +18,12 @@ class cofeat_early(nn.Module):
 
         # make separate fully conv encoders for support and query
         backbone = vgg16(is_caffe=True)
-        for k in list(backbone._modules)[-6:]:
-            del backbone._modules[k]
+        del backbone[-6:]
         fc6 = [('fc6', nn.Conv2d(512, feat_dim, 7)),
             ('fc6_relu', nn.ReLU(inplace=True)),
             ('fc6_drop', nn.Dropout2d(p=0.5))]
-        backbone._modules.update(fc6)
+        for n, m in fc6:
+            setattr(backbone, n, m)
         supp_backbone = copy.deepcopy(backbone)
         qry_backbone = copy.deepcopy(backbone)
 
@@ -35,7 +35,7 @@ class cofeat_early(nn.Module):
         new_conv1 = nn.Conv2d(5, old_conv1.size(0), kernel_size=old_conv1.size(2), stride=1, padding=1)
         new_conv1.weight.data = torch.cat([old_conv1, mean_conv1, mean_conv1], dim=1)
         new_conv1.bias.data = supp_backbone._modules['conv1_1'].bias.data
-        supp_backbone._modules['conv1_1'] = new_conv1
+        supp_backbone.conv1_1 = new_conv1
         self.supp_encoder = supp_backbone
         self.qry_encoder = qry_backbone
 
@@ -50,10 +50,10 @@ class cofeat_early(nn.Module):
         # Score layer should be zero
         for n, m in self.named_modules():
             if 'fc' in n and isinstance(n, nn.Conv2d):
-                m.weight.data.normal_(0, .001)
+                nn.init.normal_(m.weight, 0., .001)
             elif 'score' in n:
-                m.weight.data.fill_(0.)
-                m.bias.data.fill_(0.)
+                nn.init.constant_(m.weight, 0.)
+                nn.init.constant_(m.bias, 0.)
 
         # bilinear interpolation for upsampling
         self.decoder = Interpolator(num_classes, 32, odd=False)

@@ -4,14 +4,13 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
 
 from .backbone import vgg16
 from .fcn import Interpolator, Downsampler
-from .dios_late_glob import dios_late_glob
+from .interactive_late_glob import interactive_late_glob
 
 
-class dios_late_glob_lite(dios_late_glob):
+class interactive_late_glob_lite(interactive_late_glob):
 
     def __init__(self, num_classes):
         super().__init__(num_classes, 256) # lite-headed: 256 vs. regular 4096
@@ -23,5 +22,5 @@ class dios_late_glob_lite(dios_late_glob):
             ('fc6_drop', nn.Dropout2d(p=0.5))]
         self.encoder._modules.update(fc6)
         # normal init new layer
-        self.encoder.fc6.weight.data.normal_(0, .001)
-        self.encoder.fc6.bias.data.zero_()
+        nn.init.normal_(self.encoder.fc6.weight, 0., .001)
+        nn.init.constant_(self.encoder.fc6.bias, 0.)

@@ -3,7 +3,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
 
 
 def convolutionalize(modules, input_size):
@@ -18,7 +17,7 @@ def convolutionalize(modules, input_size):
 
     """
     fully_conv_modules = []
-    x = Variable(torch.zeros((1, ) + input_size))
+    x = torch.zeros((1, ) + input_size)
     for m in modules:
         if isinstance(m, nn.Linear):
             n = nn.Conv2d(x.size(1), m.weight.size(0), kernel_size=(x.size(2), x.size(3)))

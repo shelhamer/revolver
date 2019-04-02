@@ -22,8 +22,8 @@ class fcn32s(nn.Module):
 
         # classifier head
         self.head = nn.Conv2d(self.feat_dim, self.num_classes, 1)
-        self.head.weight.data.zero_()
-        self.head.bias.data.zero_()
+        nn.init.constant_(self.head.weight, 0.)
+        nn.init.constant_(self.head.bias, 0.)
 
         # bilinear interpolation for upsampling
         self.decoder = Interpolator(self.num_classes, 32, odd=False)
