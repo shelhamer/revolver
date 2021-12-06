@@ -10,7 +10,7 @@ cloudpickle==0.5.3
 cycler==0.10.0
 Cython==0.28.2
 cytoolz==0.9.0.1
-dask==0.17.5
+dask==2021.10.0
 davisinteractive==0.1.9
 decorator==4.3.0
 distributed==1.21.8
