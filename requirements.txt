@@ -53,7 +53,7 @@ pexpect==4.5.0
 pickleshare==0.7.4
 Pillow==8.3.2
 prompt-toolkit==1.0.15
-psutil==5.4.5
+psutil==5.6.6
 ptyprocess==0.5.2
 pycocotools==2.0.0
 pycparser==2.18
