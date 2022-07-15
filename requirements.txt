@@ -13,7 +13,7 @@ cytoolz==0.9.0.1
 dask==2021.10.0
 davisinteractive==0.1.9
 decorator==4.3.0
-distributed==1.21.8
+distributed==2021.10.0
 entrypoints==0.2.3
 heapdict==1.0.0
 html5lib==1.0.1
