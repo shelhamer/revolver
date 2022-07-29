@@ -34,7 +34,7 @@ kiwisolver==1.0.1
 locket==0.2.0
 MarkupSafe==1.0
 matplotlib==2.2.2
-mistune==0.8.3
+mistune==2.0.3
 mkl-fft==1.0.0
 mkl-random==1.0.1
 msgpack-python==0.5.6
